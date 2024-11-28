@@ -1,0 +1,125 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  // id                 String  @id @default(cuid()) @map("_id")
+  // userId             String
+  type               String
+  // provider           String
+  // providerAccountId  String
+  // refresh_token      String?
+  // access_token       String?
+  // expires_at         Int?
+  // token_type         String?
+  // scope              String?
+  // id_token           String?
+  // session_state      String?
+
+  // user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+
+  id                 String  @id @default(cuid()) @map("_id")
+  userId             String  @map("user_id")  // Foreign key to User model
+  provider           String
+  providerAccountId  String
+  refresh_token      String?
+  access_token       String?
+  expires_at         Int?
+  token_type         String?
+  scope              String?
+  id_token           String?
+  session_state      String?
+  userid             String?  // Marking this as nullable
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("accounts")
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid()) @map("_id")
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id            String    @id @default(cuid()) @map("_id")
+  name          String?
+  userid        String    @unique
+  email         String?   @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  phone         String? 
+  // imageFile     String?   // Add imageFile field
+  admin         Boolean   @default(false) // Add admin field with default value false
+  accounts      Account[]
+  sessions      Session[]
+  bookmarks    String[]     // Add this line to store bookmarked article IDs
+  articles    NewsArticle[] @relation("UserArticles")
+  tweets    Tweet[]
+}
+
+
+model NewsArticle {
+  id      String  @id @default(cuid()) @map("_id")
+  title   String
+  summary String
+  url     String
+  imglink String
+  userId  String? // Optional field to store which user created this article
+  user    User?   @relation("UserArticles", fields: [userId], references: [id]) // Define the relation back to User
+}
+
+model Tweet {
+  id        String   @id @default(cuid()) @map("_id")
+  tweet     String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   // Change from Int to String
+  timestamp DateTime
+  createdAt DateTime @default(now())
+
+  // Make sure that the combination of userId and tweet is unique
+  @@unique([userId, tweet])
+}
+
+model bloodDonation {
+  id        String   @id @default(cuid()) @map("_id") // Unique ID for each donation
+  name      String   // Full name of the donor
+  age       Int      // Age of the donor
+  gender    String   // Gender of the donor
+  bloodType String   // Blood type of the donor
+  phone     String   // Phone number of the donor
+  email     String   // Email of the donor
+  createdAt DateTime @default(now())       // Timestamp for when the record was created
+  updatedAt DateTime @updatedAt            // Timestamp for when the record was last updated
+}
+
+model VerificationToken {
+  identifier String @id @map("_id")
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+model allLocations {
+    id        String   @id @default(auto()) @map("_id") @db.ObjectId
+    location  String
+    latitude  Float
+    longitude Float
+    country   String
+    count     Int
+    mag       Float
+}
