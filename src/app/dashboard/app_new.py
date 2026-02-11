@@ -9,7 +9,7 @@ import io
 import time
 
 # MongoDB connection
-client = MongoClient('mongodb+srv://anilpython7877:newpassword1212@nextauthuser.n7vzr.mongodb.net/clientapp?retryWrites=true&w=majority&appName=nextauthuser')
+client = MongoClient('')
 db = client['clientapp']
 
 def download_tweets():
